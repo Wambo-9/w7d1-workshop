@@ -1,30 +1,61 @@
 const {buildDB} = require('./db/populateDataBase')
 const express = require('express')
-const {cheese, Cheese} = require('./models')
+const {Cheese} = require('./models')
 const app = express ()
 buildDB()
 
-
-app.get('/feta', async (req, res) => {
-    const queriedCheese = await Cheese.findOne({where: {title: 'Feta'}})
+app.get('/cheeses/:cheese', async (req, res) =>{
+    let newString = req.params.cheese[0].toUpperCase() + req.params.cheese.slice(1).toLowerCase()
+    const queriedCheese = await Cheese.findOne({where: {title: newString}})
+    if (!queriedCheese) {
+        res.send("resource not found")
+        return
+    }
     let {title, description} =  queriedCheese
-    let payload = {
-        title: title,
-        description: description
+       let payload = {
+         title: title,
+          description: description
     }
     res.send(payload)
 })
 
+
+
+//app.get('/feta', async (req, res) => {
+//    const queriedCheese = await Cheese.findOne({where: {title: 'Feta'}})
+//    let {title, description} =  queriedCheese
+//    let payload = {
+//       title: title,
+//        description: description
+//    }
+//    res.send(payload)
+//})
+
 app.get('/cheeses/start-with-c', async (req, res) => {
     const dbQuery = await Cheese.findAll()
-    let startsWithC = dbQuery.filter((cheese) => {
-        if(cheese.title[0]=== 'C'){
+    let startsWithLetter = dbQuery.filter((cheese) => {
+        if(cheese.title[0] === req.query.startswith.toUpperCase()){
             return true
         }
-        res.send(startsWithC)
     })
-    //res.send(dbQuery)
+    if(startsWithLetter.length === 0) {
+        res.send("resource not found")
+    }else{
+        let payload = startsWithLetter.map((cheeseObj) => {
+            return{
+                title: cheeseObj.title,
+                description: cheeseObj.description
+            }
+        })
+        res.send(payload)
+    }
 
+
+    //res.send(startsWithC)
+    //res.send(dbQuery)
+ //if(cheese.title[0]=== 'C'){
+          //  return true
+        //}
     app.get('/user/:id', (req, res) => {
         console.log(req.params.id)
         res.send(200)
