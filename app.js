@@ -1,12 +1,17 @@
 const {buildDB} = require('./db/populateDataBase')
 const express = require('express')
 const {Cheese, Board, User} = require('./models')
-const{json} =require('express')
-const { Model } = require('sequelize/types')
+const {boardsRt, cheesesRt} = require ('./models')
+//const{json} =require('express')
+//const { Model } = require('sequelize/types')
 const app = express ()
 buildDB()
 
+
+
+
 app.use(express.json())
+app.use('/boards', boardsRt)
 
 app.get('/cheeses/:cheese', async(req, res) => {
 })
